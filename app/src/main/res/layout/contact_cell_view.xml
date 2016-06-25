@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/ic_avatar"
+            android:id="@+id/avatar"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dip"
+            android:layout_weight="0.9">
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/display_name"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description not available"/>
+
+        </TableLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="20dip"
+            android:src="@mipmap/ic_newcontent"
+            android:id="@+id/new_content"
+            android:layout_weight="0.1"/>
+
+    </TableRow>
+
+</TableLayout>
