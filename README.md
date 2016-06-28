@@ -24,11 +24,11 @@ The chat demo has two activities, one for listing contacts in proximity and one 
 
 #### 1. Download the Hype SDK
 
-The first thing you need is the Hype SDK binary. Subscribe for the Beta program at the Hype Labs [website](http://hypelabs.io/downloads/) and follow the instructions from your inbox. You'll need your subscription to be activated before proceeding.
+The first thing you need is the Hype SDK binary. Subscribe for the Beta program at the Hype Labs [website](http://hypelabs.io/?r=10) and follow the instructions from your inbox. You'll need your subscription to be activated before proceeding.
 
 #### 2. Add the SDK to your Android Studio project
 
-Integrating the SDK is really simple. Here we provide simple instructions, and alternativelly you can read Android's [official documentation](https://developer.android.com/studio/projects/android-library.html#AddDependency) on that regard.
+Integrating the SDK is really simple. Here we provide simple instructions, and alternativelly you can read Android's [official documentation](https://developer.android.com/studio/projects/android-library.html#AddDependency) on that regard. These instructions apply if you are starting a project from scratch. If, however, you are just experimenting with this demo, just drag the _Hype.aar_ file to the _Hype_ folder in your project root directory.
 
 Open your project in Android Studio, go to _File_, _New_, _New Module_, and select _Import .JAR/.AAR_. Click _Next_. The window that follows will prompt for a _File name_ and _Subproject name_. For the _File name_ enter the path to the Hype AAR file or click the ellipsis symbol at the right and browse there. After selecting the correct binary, the _Subproject name_ field should have been filled automatically for you. If not, enter _Hype_. Press _Finish_. By now Android Studio should have already configured your _settings.gradle_ file to build against the framework. Make sure by checking if that file contains a line such as `include ':app', ':Hype'`. Finally, add the SDK as a dependency by adding `compile project(':Hype')` to your _build.gradle_. Notice that your project should have at least three _build.gradle_ files by now: one for the project, one for the app, and one for Hype. This line should be added to the app's build settings.
 
@@ -36,9 +36,19 @@ Open your project in Android Studio, go to _File_, _New_, _New Module_, and sele
 
 Go to [the apps page](http://hypelabs.io/apps) and create a new app by pressing the _Create new app_ button on the top left. Enter a name for your app and press Submit. The app dialog that appears afterwards yields a 8-digit hexadecimal number, called a _realm_. Keep that number for step 4. Realms are a means of segregating the network, by making sure that different apps do not communicate with each other, even though they are capable of forwarding each other's contents. If your project requires a deeper understanding of how the technology works we recommend reading the [Overview](http://hypelabs.io/docs/ios/overview/) page. There you'll find a more detailed analysis of what realms are and what they do, as well as other topics about the Hype framework.
 
+This step is optional if you have previously already setup an app. You should use the same realm for all platforms, iOS and Android, as that will enable the two apps to communicate.
+
 #### 4. Setup the realm
 
-The realm must be set in the project's Info.plist file or when starting the Hype services. You'll find your Info.plist in Project Navigator under the Supporting Files group. If you are not sure how to edit your Info.plist, we recommend reading Apple's documentation [here](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/AboutInformationPropertyListFiles.html) for that regard. Add a new top level entry on your Info.plist called _com.hypelabs.hype_ and set its type to _Dictionary_. Expand the entry by clicking on the arrow on the left and replace the _New item_ text with _realm_ (all lower case). Set its type to _String_ and the value to the realm identifier that you got from step 3. Alternatively, you can set the `HYPOptionRealmKey` when starting the framework's services with an `NSString` value indicating the realm. The following example illustrates how to do this. The 00000000 realm is reserved for testing purposes and apps should not be deployed with this realm. Also, setting the realm with `-startWithOptions:` takes precedence over the realm read from the Info.plist file.
+The realm can be configured in your manifest file or when starting the Hype services. To set it up using the manifest, access your _AndroidManifest.xml_ file and add this line between the _&lt;application&gt; tags:
+
+```xml
+        <meta-data
+            android:name="com.hypelabs.hype.realm"
+            android:value="\ 00000000"/>
+```
+
+Alternatively, you can configure the realm when the Hype services are requested to [start](https://hypelabs.io/docs/android/api-reference/#startmapstring-object) by passing the _Hype.OptionRealmKey_ with a `String` object indicating the realm. Here's how:
 
 ```java
         Hype.getInstance().start(new HashMap<String, Object>() {{
@@ -46,6 +56,8 @@ The realm must be set in the project's Info.plist file or when starting the Hype
             put(Hype.OptionRealmKey, "00000000");
         }});
 ```
+
+The 00000000 realm is reserved for testing purposes and apps should not be deployed with this realm. Also, setting the realm with `start(Map&lt;String, Object&gt;)` takes precedence over the realm read from the manifest file.
 
 #### 5. Start Hype services
 
