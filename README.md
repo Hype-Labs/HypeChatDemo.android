@@ -40,7 +40,7 @@ This step is optional if you have previously already setup an app. You should us
 
 #### 4. Setup the realm
 
-The realm can be configured in your manifest file or when starting the Hype services. To set it up using the manifest, access your _AndroidManifest.xml_ file and add this line between the _&lt;application&gt; tags:
+The realm can be configured in your manifest file or when starting the Hype services. To set it up using the manifest, access your _AndroidManifest.xml_ file and add this line between the &lt;application&gt; tags:
 
 ```xml
         <meta-data
@@ -57,7 +57,7 @@ Alternatively, you can configure the realm when the Hype services are requested 
         }});
 ```
 
-The 00000000 realm is reserved for testing purposes and apps should not be deployed with this realm. Also, setting the realm with `start(Map&lt;String, Object&gt;)` takes precedence over the realm read from the manifest file.
+The 00000000 realm is reserved for testing purposes and apps should not be deployed with this realm. Also, setting the realm with `start(Map<String, Object>)` takes precedence over the realm read from the manifest file.
 
 #### 5. Start Hype services
 
