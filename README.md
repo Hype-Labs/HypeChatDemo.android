@@ -48,7 +48,7 @@ The realm can be configured in your manifest file or when starting the Hype serv
             android:value="\ 00000000"/>
 ```
 
-Alternatively, you can configure the realm when the Hype services are requested to [start](https://hypelabs.io/docs/android/api-reference/#startmapstring-object) by passing the _Hype.OptionRealmKey_ with a `String` object indicating the realm. Here's how:
+Notice the initial slash followed by an empty space. As indicated by [this](http://stackoverflow.com/questions/2154945/how-to-force-a-meta-data-value-to-type-string) StackOverflow discussion, the slash prevents the realm from being interpreted as a number, and instead forces it to be read as a string. Alternatively, the realm could be given with a `\0` suffix, such as `ABCDEFGH\0`. Also, you can configure the realm when the Hype services are requested to [start](https://hypelabs.io/docs/android/api-reference/#startmapstring-object) by passing the _Hype.OptionRealmKey_ with a `String` object indicating the realm. Here's how:
 
 ```java
         Hype.getInstance().start(new HashMap<String, Object>() {{
@@ -61,10 +61,10 @@ The 00000000 realm is reserved for testing purposes and apps should not be deplo
 
 #### 5. Start Hype services
 
-After the project has been properly setup, it's time to write some code! In this case, we want Hype to run for the duration of the app, meaning that it will be active as long as the app is on the foreground. Hype already supports background execution, but this has not been officially deployed and is not documented yet, so we'll not be using it. For this reason, we manage Hype's lifecycle in a custom `Application` instance, called `ChatApplication`. To do that, have your `Application` class implement the [com.hypelabs.hype.Observer](https://hypelabs.io/docs/android/api-reference/#hypobserver) interface and set the instance as an Hype observer. Lets jump to the code, with some details omitted for simplicity:
+After the project has been properly set up, it's time to write some code! In this case, we want Hype to run for the duration of the app, meaning that it will be active as long as the app is on the foreground. Hype already supports background execution, but this has not been officially deployed and is not documented yet, so we'll not be using it. For this reason, we manage Hype's lifecycle in a custom `Application` instance, called `ChatApplication`. To do that, have your `Application` class implement the [StateObserver](https://hypelabs.io/docs/android/api-reference/#stateobserver) interface and set the instance as an Hype observer. Lets jump to the code, with some details omitted for simplicity:
 
 ```java
-public class ChatApplication extends BaseApplication implements Observer {
+public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, IOObserver {
 
     private static final String TAG = ContactActivity.class.getName();
 
@@ -88,11 +88,24 @@ public class ChatApplication extends BaseApplication implements Observer {
         // thrown.
         Hype.getInstance().setContext(getApplicationContext());
 
-        // Adding self as an Hype observer makes sure that the application gets notifications
-        // for events being triggered by the Hype framework. These events include the framework's
-        // lifecycle (starting, stopping), network events (finding and losing instances), and
-        // message I/O.
-        Hype.getInstance().addObserver(this);
+        // Adding itself as an Hype lifecycle observer makes sure that the application gets
+        // notifications for lifecycle events being triggered by the Hype framework. These
+        // events include starting and stopping, as well as some error handling.
+        Hype.getInstance().addLifecycleObserver(this);
+
+        // Network observer notifications include other devices entering and leaving the
+        // network. When a device is found all observers get a onInstanceFound notification,
+        // and when they leave onInstanceLost is triggered instead.
+        Hype.getInstance().addNetworkObserver(this);
+
+        // I/O notifications indicate when messages are sent (not available yet) or fail
+        // to be sent. Notice that a message being sent does not imply that it has been
+        // delivered, only that it has left the device. If considering mesh networking,
+        // in which devices will be forwarding content for each other, a message being
+        // means that its contents have been flushed out of the output stream, but not
+        // that they have reached their destination. This, in turn, is what acknowledgements
+        // are used for, but those have not yet available.
+        Hype.getInstance().addIOObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish
         // itself on the network and start browsing for other devices in proximity. If
@@ -180,7 +193,7 @@ This code demonstrates how to manage Hype's lifecycle. First, when the app start
 The next step would be to handle found instances. Here's how that can be accomplished, while expanding the previous example: 
 
 ```java
-public class ChatApplication extends BaseApplication implements Observer {
+public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, IOObserver {
 
     private static final String TAG = ContactActivity.class.getName();
 
@@ -217,14 +230,14 @@ public class ChatApplication extends BaseApplication implements Observer {
 }
 ```
 
+Notice that the instance has previously been added as a network observer and that it complies with the `NetworkObserver` interface.
+
 ### 6. Sending messages
 
 Sending messages is performed by the `ChatActivity` activity. For that, we need some content to send and instance to send it to. Here's how:
 
 ```java
     protected Message sendMessage(String text, Instance instance) throws UnsupportedEncodingException {
-
-        InOut<Error> error = new InOut<>();
 
         // When sending content there must be some sort of protocol that both parties
         // understand. In this case, we simply send the text encoded in UTF-8. The data
@@ -234,22 +247,11 @@ Sending messages is performed by the `ChatActivity` activity. For that, we need 
         // Sends the data and returns the message that has been generated for it. Messages have
         // identifiers that are useful for keeping track of the message's deliverability state
         // (not available yet).
-        Message message = Hype.getInstance().sendData(data, instance, error);
-
-        if (error.get() != null) {
-
-            // The message couldn't be sent for some reason. Common causes include the
-            // instance not being reachable anymore (usualy resulting in it being lost).
-            // This error should be properly handled, probably by notifying the user
-            // that the delivery was not possible.
-            return null;
-        }
-
-        return message;
+        return Hype.getInstance().send(data, instance);
     }
 ```
 
-Finally, messages are received by all Hype observers actively listenning to framework events. In this case, we are back to the `ChatApplication`:
+Finally, messages are received by all Hype I/O observers actively listenning to framework events.
 
 ```java
     public void onMessageReceived(Hype hype, Message message, Instance instance) {
