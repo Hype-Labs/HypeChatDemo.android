@@ -29,14 +29,14 @@ import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
 import com.hypelabs.hype.IOObserver;
 import com.hypelabs.hype.Instance;
-import com.hypelabs.hype.LifecycleObserver;
 import com.hypelabs.hype.Message;
 import com.hypelabs.hype.NetworkObserver;
+import com.hypelabs.hype.StateObserver;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, IOObserver, BaseApplication.LifecycleDelegate {
+public class ChatApplication extends BaseApplication implements StateObserver, NetworkObserver, IOObserver, BaseApplication.LifecycleDelegate {
 
     private static final String TAG = ChatApplication.class.getName();
 
@@ -63,10 +63,10 @@ public class ChatApplication extends BaseApplication implements LifecycleObserve
         // thrown.
         Hype.getInstance().setContext(getApplicationContext());
 
-        // Adding itself as an Hype lifecycle observer makes sure that the application gets
+        // Adding itself as an Hype state observer makes sure that the application gets
         // notifications for lifecycle events being triggered by the Hype framework. These
         // events include starting and stopping, as well as some error handling.
-        Hype.getInstance().addLifecycleObserver(this);
+        Hype.getInstance().addStateObserver(this);
 
         // Network observer notifications include other devices entering and leaving the
         // network. When a device is found all observers get a onInstanceFound notification,
