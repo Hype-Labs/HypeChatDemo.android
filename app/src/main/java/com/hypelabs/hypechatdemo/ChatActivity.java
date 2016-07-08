@@ -29,10 +29,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.hypelabs.hype.Hype;
-import com.hypelabs.hype.InOut;
 import com.hypelabs.hype.Instance;
 import com.hypelabs.hype.Message;
-import com.hypelabs.hype.Error;
 
 import java.io.UnsupportedEncodingException;
 
@@ -42,8 +40,6 @@ public class ChatActivity extends Activity implements Store.Delegate {
 
     protected Message sendMessage(String text, Instance instance) throws UnsupportedEncodingException {
 
-        InOut<Error> error = new InOut<>();
-
         // When sending content there must be some sort of protocol that both parties
         // understand. In this case, we simply send the text encoded in UTF-8. The data
         // must be decoded when received, using the same encoding.
@@ -52,18 +48,7 @@ public class ChatActivity extends Activity implements Store.Delegate {
         // Sends the data and returns the message that has been generated for it. Messages have
         // identifiers that are useful for keeping track of the message's deliverability state
         // (not available yet).
-        Message message = Hype.getInstance().sendData(data, instance, error);
-
-        if (error.get() != null) {
-
-            // The message couldn't be sent for some reason. Common causes include the
-            // instance not being reachable anymore (usualy resulting in it being lost).
-            // This error should be properly handled, probably by notifying the user
-            // that the delivery was not possible.
-            return null;
-        }
-
-        return message;
+        return Hype.getInstance().send(data, instance);
     }
 
     @Override

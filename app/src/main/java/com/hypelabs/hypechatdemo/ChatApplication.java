@@ -27,16 +27,18 @@ import android.util.Log;
 
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
+import com.hypelabs.hype.IOObserver;
 import com.hypelabs.hype.Instance;
+import com.hypelabs.hype.LifecycleObserver;
 import com.hypelabs.hype.Message;
-import com.hypelabs.hype.Observer;
+import com.hypelabs.hype.NetworkObserver;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatApplication extends BaseApplication implements Observer, BaseApplication.LifecycleDelegate {
+public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, IOObserver, BaseApplication.LifecycleDelegate {
 
-    private static final String TAG = ContactActivity.class.getName();
+    private static final String TAG = ChatApplication.class.getName();
 
     // The stores object keeps track of message storage associated with each instance (peer)
     private Map<String, Store> stores;
@@ -61,11 +63,24 @@ public class ChatApplication extends BaseApplication implements Observer, BaseAp
         // thrown.
         Hype.getInstance().setContext(getApplicationContext());
 
-        // Adding self as an Hype observer makes sure that the application gets notifications
-        // for events being triggered by the Hype framework. These events include the framework's
-        // lifecycle (starting, stopping), network events (finding and losing instances), and
-        // message I/O.
-        Hype.getInstance().addObserver(this);
+        // Adding itself as an Hype lifecycle observer makes sure that the application gets
+        // notifications for lifecycle events being triggered by the Hype framework. These
+        // events include starting and stopping, as well as some error handling.
+        Hype.getInstance().addLifecycleObserver(this);
+
+        // Network observer notifications include other devices entering and leaving the
+        // network. When a device is found all observers get a onInstanceFound notification,
+        // and when they leave onInstanceLost is triggered instead.
+        Hype.getInstance().addNetworkObserver(this);
+
+        // I/O notifications indicate when messages are sent (not available yet) or fail
+        // to be sent. Notice that a message being sent does not imply that it has been
+        // delivered, only that it has left the device. If considering mesh networking,
+        // in which devices will be forwarding content for each other, a message being
+        // means that its contents have been flushed out of the output stream, but not
+        // that they have reached their destination. This, in turn, is what acknowledgements
+        // are used for, but those have not yet available.
+        Hype.getInstance().addIOObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish
         // itself on the network and start browsing for other devices in proximity. If
@@ -207,6 +222,16 @@ public class ChatApplication extends BaseApplication implements Observer, BaseAp
         if (contactActivity != null) {
             contactActivity.notifyAddedMessage();
         }
+    }
+
+    @Override
+    public void onMessageFailedSending(Hype hype, Message message, Error error) {
+
+        // Sending messages can fail for a lot of reasons, such as the adapters
+        // (Bluetooth and Wi-Fi) being turned off by the user while the process
+        // of sending the data is still ongoing. The error parameter describes
+        // the cause for the failure.
+        Log.i(TAG, String.format("Failed to send message: %d [%s]", message.getIdentifier(), error.getDescription()));
     }
 
     @Override
