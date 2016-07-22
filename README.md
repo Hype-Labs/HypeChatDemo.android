@@ -43,6 +43,11 @@ In order for Hype to function properly, it needs some permissions to be asked by
 
 The permissions are required for the following reasons:
 
+- Dashes work just as well
+- And if you have sub points, put two spaces before the dash or star:
+    - Like this
+    - And this
+
 - [android.permission.INTERNET](https://developer.android.com/reference/android/Manifest.permission.html#INTERNET) is needed for enabling socket I/O,
 - [android.permission.ACCESS_NETWORK_STATE](https://developer.android.com/reference/android/Manifest.permission.html#ACCESS_NETWORK_STATE) query information about the network.
 
