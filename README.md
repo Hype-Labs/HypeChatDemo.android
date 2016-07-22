@@ -10,13 +10,13 @@ You can start using Hype today, [join the beta by subscribing on our website](ht
 
 ## What does it do?
 
-This project consists of a chat app sketch written to illustrate how to work with the SDK. The app displays a list of devices in close proximity, which can be tapped for exchanging text content. The SDK itself allows sending other kinds of media, such as pictures, or video, but the demo is limited for simplicity purposes.
+This project consists of a chat app sketch written to illustrate how to work with Hype. The app displays a list of devices in close proximity, which can be tapped for exchanging text content. The SDK itself allows sending other kinds of media, such as pictures, or video, but the demo is limited for simplicity purposes.
 
 Most of the documentation is inline with the code, and further information can be found on the Hype Labs [official documentation site](https://hypelabs.io/docs/).
 
 ## Setup
 
-To run the project you'll need the Hype SDK binary. To access it, subscribe on the Hype Labs [website](http://hypelabs.io/?r=10) to get early access to the SDK. After extracting the downloaded file, you should see an [AAR](http://tools.android.com/tech-docs/new-build-system/aar-format) file. Now open your app project folder and find a subfolder called _Hype_ inside. Drag the AAR file there. In this case, the project is already configured to link against the Hype binary. If you are writting a project from scratch on integrating Hype into an existing project, check our [Getting Started](https://hypelabs.io/docs/android/getting-started/) guide for Android to learn how to set it up yourself.
+To run the project you'll need the Hype SDK binary. To access it, subscribe on the Hype Labs [website](http://hypelabs.io/?r=10) to get early access to the SDK. After extracting the downloaded file, you should see an [AAR](http://tools.android.com/tech-docs/new-build-system/aar-format) file. Now open your app project folder and find a subfolder called _Hype_ inside. Drag the AAR file there. In this case, the project is already configured to link against the Hype binary. If you are writting a project from scratch or integrating Hype into an existing project, check our [Getting Started](https://hypelabs.io/docs/android/getting-started/) guide for Android to learn how to set it up yourself.
 
 ## Overview
 
@@ -32,13 +32,29 @@ Integrating the SDK is really simple. Here we provide simple instructions, and a
 
 Open your project in Android Studio, go to _File_, _New_, _New Module_, and select _Import .JAR/.AAR_. Click _Next_. The window that follows will prompt for a _File name_ and _Subproject name_. For the _File name_ enter the path to the Hype AAR file or click the ellipsis symbol at the right and browse there. After selecting the correct binary, the _Subproject name_ field should have been filled automatically for you. If not, enter _Hype_. Press _Finish_. By now Android Studio should have already configured your _settings.gradle_ file to build against the framework. Make sure by checking if that file contains a line such as `include ':app', ':Hype'`. Finally, add the SDK as a dependency by adding `compile project(':Hype')` to your _build.gradle_. Notice that your project should have at least three _build.gradle_ files by now: one for the project, one for the app, and one for Hype. This line should be added to the app's build settings.
 
-#### 3. Register an app
+#### 3. Request app permissions
 
-Go to [the apps page](http://hypelabs.io/apps) and create a new app by pressing the _Create new app_ button on the top left. Enter a name for your app and press Submit. The app dialog that appears afterwards yields a 8-digit hexadecimal number, called a _realm_. Keep that number for step 4. Realms are a means of segregating the network, by making sure that different apps do not communicate with each other, even though they are capable of forwarding each other's contents. If your project requires a deeper understanding of how the technology works we recommend reading the [Overview](http://hypelabs.io/docs/ios/overview/) page. There you'll find a more detailed analysis of what realms are and what they do, as well as other topics about the Hype framework.
+In order for Hype to function properly, it needs some permissions to be asked by the app. To do this, add the following to your manifest:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+
+The permissions are required for the following reasons:
+
+* [android.permission.INTERNET](https://developer.android.com/reference/android/Manifest.permission.html#INTERNET) is needed for enabling socket I/O,
+* [android.permission.ACCESS_NETWORK_STATE](https://developer.android.com/reference/android/Manifest.permission.html#ACCESS_NETWORK_STATE) query information about the network.
+
+All permissions are required at this moment, as the Hype SDK only implements Infrastructural Wi-Fi. When other transports are used (soon) different permissions will be required according to which transports are to be used.
+
+#### 4. Register an app
+
+Go to [the apps page](http://hypelabs.io/apps) and create a new app by pressing the _Create new app_ button on the top left. Enter a name for your app and press Submit. The app dialog that appears afterwards yields a 8-digit hexadecimal number, called a _realm_. Keep that number for step 5. Realms are a means of segregating the network, by making sure that different apps do not communicate with each other, even though they are capable of forwarding each other's contents. If your project requires a deeper understanding of how the technology works we recommend reading the [Overview](http://hypelabs.io/docs/ios/overview/) page. There you'll find a more detailed analysis of what realms are and what they do, as well as other topics about the Hype framework.
 
 This step is optional if you have previously already setup an app. You should use the same realm for all platforms, iOS and Android, as that will enable the two apps to communicate.
 
-#### 4. Setup the realm
+#### 5. Setup the realm
 
 The realm can be configured in your manifest file or when starting the Hype services. To set it up using the manifest, access your _AndroidManifest.xml_ file and add this line between the &lt;application&gt; tags:
 
@@ -59,12 +75,12 @@ Notice the initial slash followed by an empty space. As indicated by [this](http
 
 The 00000000 realm is reserved for testing purposes and apps should not be deployed with this realm. Also, setting the realm with `start(Map<String, Object>)` takes precedence over the realm read from the manifest file.
 
-#### 5. Start Hype services
+#### 6. Start Hype services
 
 After the project has been properly set up, it's time to write some code! In this case, we want Hype to run for the duration of the app, meaning that it will be active as long as the app is on the foreground. Hype already supports background execution, but this has not been officially deployed and is not documented yet, so we'll not be using it. For this reason, we manage Hype's lifecycle in a custom `Application` instance, called `ChatApplication`. To do that, have your `Application` class implement the [StateObserver](https://hypelabs.io/docs/android/api-reference/#stateobserver) interface and set the instance as an Hype observer. Lets jump to the code, with some details omitted for simplicity:
 
 ```java
-public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, IOObserver {
+public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, MessageObserver {
 
     private static final String TAG = ContactActivity.class.getName();
 
@@ -193,7 +209,7 @@ This code demonstrates how to manage Hype's lifecycle. First, when the app start
 The next step would be to handle found instances. Here's how that can be accomplished, while expanding the previous example: 
 
 ```java
-public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, IOObserver {
+public class ChatApplication extends BaseApplication implements LifecycleObserver, NetworkObserver, MessageObserver {
 
     private static final String TAG = ContactActivity.class.getName();
 
@@ -232,7 +248,7 @@ public class ChatApplication extends BaseApplication implements LifecycleObserve
 
 Notice that the instance has previously been added as a network observer and that it complies with the `NetworkObserver` interface.
 
-### 6. Sending messages
+### 7. Sending messages
 
 Sending messages is performed by the `ChatActivity` activity. For that, we need some content to send and instance to send it to. Here's how:
 
@@ -254,6 +270,7 @@ Sending messages is performed by the `ChatActivity` activity. For that, we need 
 Finally, messages are received by all Hype I/O observers actively listenning to framework events.
 
 ```java
+    @Override
     public void onMessageReceived(Hype hype, Message message, Instance instance) {
 
         Log.i(TAG, String.format("Got a message from: %s", instance.getStringIdentifier()));
@@ -262,6 +279,16 @@ Finally, messages are received by all Hype I/O observers actively listenning to 
 
         // Storing the message triggers a reload update in the ChatActivity
         store.add(message);
+    }
+
+    @Override
+    public void onMessageFailedSending(Hype hype, Message message, Instance instance, Error error) {
+
+        // Sending messages can fail for a lot of reasons, such as the adapters
+        // (Bluetooth and Wi-Fi) being turned off by the user while the process
+        // of sending the data is still ongoing. The error parameter describes
+        // the cause for the failure.
+        Log.i(TAG, String.format("Failed to send message: %d [%s]", message.getIdentifier(), error.getDescription()));
     }
 ```
 
