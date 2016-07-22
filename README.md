@@ -43,8 +43,8 @@ In order for Hype to function properly, it needs some permissions to be asked by
 
 The permissions are required for the following reasons:
 
- * [android.permission.INTERNET](https://developer.android.com/reference/android/Manifest.permission.html#INTERNET) is needed for enabling socket I/O,
- * [android.permission.ACCESS_NETWORK_STATE](https://developer.android.com/reference/android/Manifest.permission.html#ACCESS_NETWORK_STATE) query information about the network.
+    * [android.permission.INTERNET](https://developer.android.com/reference/android/Manifest.permission.html#INTERNET) is needed for enabling socket I/O,
+    * [android.permission.ACCESS_NETWORK_STATE](https://developer.android.com/reference/android/Manifest.permission.html#ACCESS_NETWORK_STATE) query information about the network.
 
 All permissions are required at this moment, as the Hype SDK only implements Infrastructural Wi-Fi. When other transports are used (soon) different permissions will be required according to which transports are to be used.
 
