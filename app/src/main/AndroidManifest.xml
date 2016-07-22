@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hypelabs.hypechatdemo">
 
+    <!-- This is the basic set of permissions Hype needs to run. -->
+    <user-permission android:name="android.permission.INTERNET" />
+    <user-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <user-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <user-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <user-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <user-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

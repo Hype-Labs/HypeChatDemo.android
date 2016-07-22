@@ -27,16 +27,16 @@ import android.util.Log;
 
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
-import com.hypelabs.hype.IOObserver;
 import com.hypelabs.hype.Instance;
 import com.hypelabs.hype.Message;
+import com.hypelabs.hype.MessageObserver;
 import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatApplication extends BaseApplication implements StateObserver, NetworkObserver, IOObserver, BaseApplication.LifecycleDelegate {
+public class ChatApplication extends BaseApplication implements StateObserver, NetworkObserver, MessageObserver, BaseApplication.LifecycleDelegate {
 
     private static final String TAG = ChatApplication.class.getName();
 
@@ -73,14 +73,14 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         // and when they leave onInstanceLost is triggered instead.
         Hype.getInstance().addNetworkObserver(this);
 
-        // I/O notifications indicate when messages are sent (not available yet) or fail
-        // to be sent. Notice that a message being sent does not imply that it has been
-        // delivered, only that it has left the device. If considering mesh networking,
-        // in which devices will be forwarding content for each other, a message being
+        // Message notifications indicate when messages are sent (not available yet) or
+        // fail to be sent. Notice that a message being sent does not imply that it has
+        // been delivered, only that it has left the device. If considering mesh networking,
+        // in which devices will be forwarding content for each other, a message being sent
         // means that its contents have been flushed out of the output stream, but not
         // that they have reached their destination. This, in turn, is what acknowledgements
         // are used for, but those have not yet available.
-        Hype.getInstance().addIOObserver(this);
+        Hype.getInstance().addMessageObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish
         // itself on the network and start browsing for other devices in proximity. If
@@ -225,7 +225,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     }
 
     @Override
-    public void onMessageFailedSending(Hype hype, Message message, Error error) {
+    public void onMessageFailedSending(Hype hype, Message message, Instance instance, Error error) {
 
         // Sending messages can fail for a lot of reasons, such as the adapters
         // (Bluetooth and Wi-Fi) being turned off by the user while the process
