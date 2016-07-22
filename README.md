@@ -116,7 +116,7 @@ public class ChatApplication extends BaseApplication implements LifecycleObserve
         // means that its contents have been flushed out of the output stream, but not
         // that they have reached their destination. This, in turn, is what acknowledgements
         // are used for, but those have not yet available.
-        Hype.getInstance().addIOObserver(this);
+        Hype.getInstance().addMessageObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish
         // itself on the network and start browsing for other devices in proximity. If
