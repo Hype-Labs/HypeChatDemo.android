@@ -118,7 +118,7 @@ public class ContactActivity extends Activity implements Store.Delegate {
         defaultInstance = new WeakReference<>(instance);
     }
 
-    protected void notifyAddedContact() {
+    protected void notifyContactsChanged() {
 
         updateInterface();
     }
@@ -129,9 +129,13 @@ public class ContactActivity extends Activity implements Store.Delegate {
     }
 
     protected void updateInterface() {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ListView listView = (ListView) findViewById(R.id.contact_view);
 
-        ListView listView = (ListView) findViewById(R.id.contact_view);
-
-        ((ContactViewAdapter)listView.getAdapter()).notifyDataSetChanged();
+                ((ContactViewAdapter)listView.getAdapter()).notifyDataSetChanged();
+            }
+        });
     }
 }

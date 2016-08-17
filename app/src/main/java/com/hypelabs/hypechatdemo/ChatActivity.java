@@ -23,6 +23,7 @@
 package com.hypelabs.hypechatdemo;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -85,7 +86,7 @@ public class ChatActivity extends Activity implements Store.Delegate {
                 }
 
                 try {
-
+                    Log.v(getClass().getSimpleName(), "send message");
                     Message message = sendMessage(text, store.getInstance());
 
                     if (message != null) {
@@ -109,15 +110,22 @@ public class ChatActivity extends Activity implements Store.Delegate {
 
         super.onBackPressed();
 
-        getStore().setLastReadIndex(getStore().getMessages().size());
+        if(getStore() != null){
+            getStore().setLastReadIndex(getStore().getMessages().size());
+        }
     }
 
     @Override
     public void onMessageAdded(Store store, Message message) {
 
-        final ListView listView = (ListView) findViewById(R.id.list_view);
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final ListView listView = (ListView) findViewById(R.id.list_view);
 
-        ((ChatViewAdapter)listView.getAdapter()).notifyDataSetChanged();
+                ((ChatViewAdapter)listView.getAdapter()).notifyDataSetChanged();
+            }
+        });
     }
 
     protected Store getStore() {

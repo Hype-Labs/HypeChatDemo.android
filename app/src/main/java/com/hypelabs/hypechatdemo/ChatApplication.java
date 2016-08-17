@@ -187,7 +187,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         ContactActivity contactActivity = ContactActivity.getDefaultInstance();
 
         if (contactActivity != null) {
-            contactActivity.notifyAddedContact();
+            contactActivity.notifyContactsChanged();
         }
     }
 
@@ -204,6 +204,13 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         // Cleaning up is always a good idea. It's not possible to communicate with instances
         // that were previously lost.
         getStores().remove(instance.getStringIdentifier());
+
+        // Notify the contact activity to refresh the UI
+        ContactActivity contactActivity = ContactActivity.getDefaultInstance();
+
+        if (contactActivity != null) {
+            contactActivity.notifyContactsChanged();
+        }
     }
 
     @Override
