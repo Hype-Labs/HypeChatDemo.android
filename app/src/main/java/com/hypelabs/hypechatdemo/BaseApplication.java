@@ -74,15 +74,30 @@ public class BaseApplication extends Application {
             @Override
             public void onActivityPaused(Activity activity) {
 
-                boolean wasRunningForeground = getRunningForeground();
+                // The current release has a known issue with Bluetooth Low Energy that causes all
+                // connections to drop when the SDK is stopped. This is an Android issue. At Hype
+                // Labs we working to work around this issue. At the moment, pausing the framework
+                // at onApplicationStop causes the app to crash. This callback does not properly
+                // identify the app going on the background, and as such we decided to remove the
+                // callback. In the meanwhile, both issues are being fixed: properly identifying
+                // when the app goes on the background and maintaining connections when the SDK
+                // is stopped. This code will be restored when those are fixed.
+                //
+                // In the meanwhile, Hype does not offer official background execution support
+                // because it has not been exhaustively tested. However, we did run some tests and
+                // support does exist. Feel free to not stop the SDK when the app goes on the
+                // background as, although it's not guaranteed, nothing indicates that it won't
+                // properly.
 
-                setRunningForeground(false);
-
-                if (wasRunningForeground) {
-                    if (getLifecycleDelegate() != null) {
-                        getLifecycleDelegate().onApplicationStop(thisApp);
-                    }
-                }
+//                boolean wasRunningForeground = getRunningForeground();
+//
+//                setRunningForeground(false);
+//
+//                if (wasRunningForeground) {
+//                    if (getLifecycleDelegate() != null) {
+//                        getLifecycleDelegate().onApplicationStop(thisApp);
+//                    }
+//                }
             }
 
             @Override
