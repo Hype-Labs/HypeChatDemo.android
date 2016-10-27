@@ -277,13 +277,34 @@ Finally, messages are received by all Hype I/O observers actively listenning to 
     }
 
     @Override
-    public void onMessageFailedSending(Hype hype, Message message, Instance instance, Error error) {
+    public void onMessageFailedSending(Hype hype, MessageInfo messageInfo, Instance instance, Error error) {
 
         // Sending messages can fail for a lot of reasons, such as the adapters
         // (Bluetooth and Wi-Fi) being turned off by the user while the process
         // of sending the data is still ongoing. The error parameter describes
         // the cause for the failure.
-        Log.i(TAG, String.format("Failed to send message: %d [%s]", message.getIdentifier(), error.getDescription()));
+        Log.i(TAG, String.format("Failed to send message: %d [%s]", messageInfo.getIdentifier(), error.getDescription()));
+    }
+
+    @Override
+    public void onMessageSent(Hype hype, MessageInfo messageInfo, Instance instance, float progress, boolean done) {
+
+        // A message being "sent" indicates that it has been written to the output
+        // streams. However, the content could still be buffered for output, so it
+        // has not necessarily left the device. This is useful to indicate when a
+        // message is being processed, but it does not indicate delivery by the
+        // destination device.
+        Log.i(TAG, String.format("Message being sent: %f", progress));
+    }
+
+    @Override
+    public void onMessageDelivered(Hype hype, MessageInfo messageInfo, Instance instance, float progress, boolean done) {
+
+        // A message being delivered indicates that the destination device has
+        // acknowledge reception. If the "done" argument is true, then the message
+        // has been fully delivered and the content is available on the destination
+        // device. This method is useful for implementing progress bars.
+        Log.i(TAG, String.format("Message being delivered: %f", progress));
     }
 ```
 
