@@ -59,9 +59,8 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     protected void requestHypeToStart() {
 
         // The application context is used to query the user for permissions, such as using
-        // the Bluetooth adapter (not available yet) or enabling Wi-Fi. The context must be
-        // set before anything else is attempted, otherwise resulting in an exception being
-        // thrown.
+        // the Bluetooth adapter or enabling Wi-Fi. The context must be set before anything
+        // else is attempted, otherwise resulting in an exception being thrown.
         Hype.getInstance().setContext(getApplicationContext());
 
         // Adding itself as an Hype state observer makes sure that the application gets
@@ -74,13 +73,13 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         // and when they leave onInstanceLost is triggered instead.
         Hype.getInstance().addNetworkObserver(this);
 
-        // Message notifications indicate when messages are sent (not available yet) or
-        // fail to be sent. Notice that a message being sent does not imply that it has
-        // been delivered, only that it has left the device. If considering mesh networking,
-        // in which devices will be forwarding content for each other, a message being sent
-        // means that its contents have been flushed out of the output stream, but not
-        // that they have reached their destination. This, in turn, is what acknowledgements
-        // are used for, but those have not yet available.
+        // Message notifications indicate when messages are sent, delivered, or fail to be
+        // sent. Notice that a message being sent does not imply that it has been delivered,
+        // only that it has left the device. If considering mesh networking, in which devices
+        // will be forwarding content for each other, a message being sent means that its
+        // contents have been flushed out of the output stream, but not that they have
+        // reached their destination. This, in turn, is what acknowledgements are used
+        // for, but those have not yet available.
         Hype.getInstance().addMessageObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish
