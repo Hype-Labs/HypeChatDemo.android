@@ -47,9 +47,11 @@ public class ChatActivity extends Activity implements Store.Delegate {
         byte[] data = text.getBytes("UTF-8");
 
         // Sends the data and returns the message that has been generated for it. Messages have
-        // identifiers that are useful for keeping track of the message's deliverability state
-        // (not available yet).
-        return Hype.getInstance().send(data, instance);
+        // identifiers that are useful for keeping track of the message's deliverability state.
+        // In order to track message delivery set the last parameter to true. Notice that this
+        // is not recommend, as it incurs extra overhead on the network. Use this feature only
+        // if progress tracking is really necessary.
+        return Hype.getInstance().send(data, instance, false);
     }
 
     @Override

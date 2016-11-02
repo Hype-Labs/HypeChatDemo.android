@@ -73,13 +73,10 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         // and when they leave onInstanceLost is triggered instead.
         Hype.getInstance().addNetworkObserver(this);
 
-        // Message notifications indicate when messages are sent, delivered, or fail to be
-        // sent. Notice that a message being sent does not imply that it has been delivered,
-        // only that it has left the device. If considering mesh networking, in which devices
-        // will be forwarding content for each other, a message being sent means that its
-        // contents have been flushed out of the output stream, but not that they have
-        // reached their destination. This, in turn, is what acknowledgements are used
-        // for, but those have not yet available.
+        // I/O notifications indicate when messages are sent, delivered, or fail to be sent.
+        // Notice that a message being sent does not imply that it has been delivered, only
+        // that it has been queued for output. This is especially important when using mesh
+        // networking, as the destination device might not be connect in a direct link.
         Hype.getInstance().addMessageObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish

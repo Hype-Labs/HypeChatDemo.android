@@ -94,9 +94,8 @@ public class ChatApplication extends BaseApplication implements LifecycleObserve
     protected void requestHypeToStart() {
 
         // The application context is used to query the user for permissions, such as using
-        // the Bluetooth adapter (not available yet) or enabling Wi-Fi. The context must be
-        // set before anything else is attempted, otherwise resulting in an exception being
-        // thrown.
+        // the Bluetooth adapter or enabling Wi-Fi. The context must be set before anything
+        // else is attempted, otherwise resulting in an exception being thrown.
         Hype.getInstance().setContext(getApplicationContext());
 
         // Adding itself as an Hype state observer makes sure that the application gets
@@ -109,13 +108,10 @@ public class ChatApplication extends BaseApplication implements LifecycleObserve
         // and when they leave onInstanceLost is triggered instead.
         Hype.getInstance().addNetworkObserver(this);
 
-        // I/O notifications indicate when messages are sent (not available yet) or fail
-        // to be sent. Notice that a message being sent does not imply that it has been
-        // delivered, only that it has left the device. If considering mesh networking,
-        // in which devices will be forwarding content for each other, a message being
-        // means that its contents have been flushed out of the output stream, but not
-        // that they have reached their destination. This, in turn, is what acknowledgements
-        // are used for, but those have not yet available.
+        // I/O notifications indicate when messages are sent, delivered, or fail to be sent.
+        // Notice that a message being sent does not imply that it has been delivered, only 
+        // that it has been queued for output. This is especially important when using mesh
+        // networking, as the destination device might not be connect in a direct link.
         Hype.getInstance().addMessageObserver(this);
 
         // Requesting Hype to start is equivalent to requesting the device to publish
@@ -256,9 +252,11 @@ Sending messages is performed by the `ChatActivity` activity. For that, we need 
         byte[] data = text.getBytes("UTF-8");
 
         // Sends the data and returns the message that has been generated for it. Messages have
-        // identifiers that are useful for keeping track of the message's deliverability state
-        // (not available yet).
-        return Hype.getInstance().send(data, instance);
+        // identifiers that are useful for keeping track of the message's deliverability state.
+        // In order to track message delivery set the last parameter to true. Notice that this
+        // is not recommend, as it incurs extra overhead on the network. Use this feature only
+        // if progress tracking is really necessary.
+        return Hype.getInstance().send(data, instance, false);
     }
 ```
 
