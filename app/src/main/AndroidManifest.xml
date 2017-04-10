@@ -5,6 +5,10 @@
     <!-- Permissions needed to run Infrastructural Wi-Fi -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Permissions needed to run Wi-Fi Direct -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     
     <!-- Permissions needed to run Bluetooth Low Energy -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
