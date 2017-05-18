@@ -37,11 +37,20 @@ Open your project in Android Studio, go to _File_, _New_, _New Module_, and sele
 In order for Hype to function properly, it needs some permissions to be asked by the app. To do this, add the following to your manifest:
 
 ```xml
+<!-- Permissions needed to run Infrastructural Wi-Fi -->
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-```
 
-All permissions are required at this moment, as the Hype SDK only implements Infrastructural Wi-Fi. When other transports are used (soon) different permissions will be required according to which transports are to be used.
+<!-- Permissions needed to run Wi-Fi Direct -->
+<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+<!-- Permissions needed to run Bluetooth Low Energy -->
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+<uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+```
 
 #### 4. Register an app
 
