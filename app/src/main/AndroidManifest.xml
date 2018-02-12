@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hypelabs.hypechatdemo">
+
+    <!-- Note
+    -
+    - You may reconfigure these permissions to set your needs. This manifest
+    - sets the necessary permissions to use all available transports, but if
+    - this is not the desired behaviour, you may remove the permissions that
+    - do apply to the transports you don't need. Keep in mind, however, that
+    - some of these permissions apply to more than one type of transport. Do
+    - not remove bundled permissions if those apply to a transport you need.
+    -->
+
+    <!-- Permissions needed to run Wi-Fi Direct -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+
+    <!-- Permissions needed to run both Wi-Fi Direct and Infrastructure Wi-Fi -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Permissions needed to run Bluetooth Low Energy -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Permissions needed to run Bluetooth Classic -->
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+
+    <!-- Permissions needed to run both Bluetooth Low Energy and Bluetooth Classic -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:name="com.hypelabs.hypechatdemo.ChatApplication">
+
+        <activity
+            android:name=".ContactActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ChatActivity">
+        </activity>
+
+        <meta-data
+            android:name="com.hypelabs.hype.realm"
+            android:value="\ {{app_identifier}}"/>
+
+    </application>
+
+</manifest>
