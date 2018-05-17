@@ -24,8 +24,10 @@
 
 package com.hypelabs.hypechatdemo;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,6 +41,7 @@ import java.lang.ref.WeakReference;
 public class ContactActivity extends Activity implements Store.Delegate {
 
     private static final String TAG = ContactActivity.class.getName();
+    private static final int REQUEST_ACCESS_COARSE_LOCATION_ID = 0;
     private String displayName;
     private static WeakReference<ContactActivity> defaultInstance;
 
@@ -139,5 +142,28 @@ public class ContactActivity extends Activity implements Store.Delegate {
                 ((ContactViewAdapter)listView.getAdapter()).notifyDataSetChanged();
             }
         });
+    }
+
+    public void requestPermissions() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_ACCESS_COARSE_LOCATION_ID);
+        }
+        else {
+            ChatApplication chatApplication = (ChatApplication) getApplication();
+            chatApplication.requestHypeToStart();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ACCESS_COARSE_LOCATION_ID:
+
+                ChatApplication chatApplication = (ChatApplication) getApplication();
+                chatApplication.requestHypeToStart();
+
+                break;
+        }
     }
 }

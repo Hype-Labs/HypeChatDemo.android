@@ -45,20 +45,22 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
 
     // The stores object keeps track of message storage associated with each instance (peer)
     private Map<String, Store> stores;
+    private boolean isConfigured = false;
 
     @Override
     public void onApplicationStart(Application app) {
-
-        requestHypeToStart();
+        configureHype();
     }
 
     @Override
     public void onApplicationStop(Application app) {
-
         requestHypeToStop();
     }
 
-    protected void requestHypeToStart() {
+    private void configureHype() {
+        if(isConfigured){
+            return;
+        }
 
         Hype.setContext(getApplicationContext());
 
@@ -71,11 +73,23 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         // by creating a new app. Copy the given identifier here.
         Hype.setAppIdentifier("{{app_identifier}}");
 
+        // Since Android 6.0 (API 23) Bluetooth Low Energy requires the ACCESS_COARSE_LOCATION
+        // permission in order to work. The `requestPermissions()` method checks whether it's
+        // necessary to ask for this permission and goes through with the request if that's the
+        // case. The `requestHypeToStart()` method is called when the user replies to the permission
+        // request. If the permission is denied, BLE will not work.
+        ContactActivity contactActivity = ContactActivity.getDefaultInstance();
+        contactActivity.requestPermissions();
+        isConfigured = true;
+    }
+
+    public void requestHypeToStart() {
+
         Hype.start();
     }
 
-    protected void requestHypeToStop()
-    {
+    protected void requestHypeToStop() {
+
         // The current release has a known issue with Bluetooth Low Energy that causes all
         // connections to drop when the SDK is stopped. This is an Android issue.
         Hype.stop();
