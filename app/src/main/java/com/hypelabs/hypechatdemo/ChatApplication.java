@@ -62,9 +62,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     }
 
     @Override
-    public void onApplicationStop(Application app) {
-        requestHypeToStop();
-    }
+    public void onApplicationStop(Application app) { }
 
     private void configureHype() {
         if(isConfigured){
