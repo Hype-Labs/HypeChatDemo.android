@@ -40,7 +40,6 @@ import java.lang.ref.WeakReference;
 
 public class ContactActivity extends Activity implements Store.Delegate {
 
-    private static final String TAG = ContactActivity.class.getName();
     private static final int REQUEST_ACCESS_COARSE_LOCATION_ID = 0;
     private String displayName;
     private static WeakReference<ContactActivity> defaultInstance;
@@ -49,11 +48,11 @@ public class ContactActivity extends Activity implements Store.Delegate {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         ListView listView;
 
         final ChatApplication chatApplication = (ChatApplication)getApplication();
         final ContactActivity contactActivity = this;
+        chatApplication.setActivity(this);
 
         setContentView(R.layout.contact_view);
 
@@ -67,7 +66,7 @@ public class ContactActivity extends Activity implements Store.Delegate {
 
                     Intent intent = new Intent(ContactActivity.this, ChatActivity.class);
 
-                    TextView displayName = (TextView) view.findViewById(R.id.display_name);
+                    TextView displayName = (TextView) view.findViewById(R.id.hype_id);
                     CharSequence charSequence = displayName.getText();
 
                     setDisplayName(charSequence.toString());
@@ -86,6 +85,9 @@ public class ContactActivity extends Activity implements Store.Delegate {
 
         // Gives access to ChatApplication for notifying when instances are found
         setContactActivity(this);
+
+        TextView announcementView = findViewById(R.id.hype_announcement);
+        announcementView.setText("Device: " + ChatApplication.announcement);
     }
 
     @Override
@@ -138,13 +140,24 @@ public class ContactActivity extends Activity implements Store.Delegate {
             @Override
             public void run() {
                 ListView listView = (ListView) findViewById(R.id.contact_view);
+                updateHypeInstancesLabel(listView.getAdapter().getCount());
 
                 ((ContactViewAdapter)listView.getAdapter()).notifyDataSetChanged();
             }
         });
     }
 
-    public void requestPermissions() {
+    private void updateHypeInstancesLabel(int nHypeInstances)
+    {
+        TextView hypeInstancesText = (TextView) findViewById(R.id.hype_instances_label);
+
+        if(nHypeInstances == 0)
+            hypeInstancesText.setText("No Hype Devices Found");
+        else
+            hypeInstancesText.setText("Hype Devices Found: " + nHypeInstances);
+    }
+
+    public void requestPermissions(Activity activity) {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},
                     REQUEST_ACCESS_COARSE_LOCATION_ID);

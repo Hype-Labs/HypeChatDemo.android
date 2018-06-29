@@ -24,6 +24,8 @@
 
 package com.hypelabs.hypechatdemo;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Application;
 import android.util.Log;
 
@@ -36,16 +38,23 @@ import com.hypelabs.hype.MessageObserver;
 import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChatApplication extends BaseApplication implements StateObserver, NetworkObserver, MessageObserver, BaseApplication.LifecycleDelegate {
 
+    public static String announcement = android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
     private static final String TAG = ChatApplication.class.getName();
 
     // The stores object keeps track of message storage associated with each instance (peer)
     private Map<String, Store> stores;
     private boolean isConfigured = false;
+    private Activity activity;
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
 
     @Override
     public void onApplicationStart(Application app) {
@@ -53,9 +62,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     }
 
     @Override
-    public void onApplicationStop(Application app) {
-        requestHypeToStop();
-    }
+    public void onApplicationStop(Application app) { }
 
     private void configureHype() {
         if(isConfigured){
@@ -69,6 +76,13 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         Hype.addNetworkObserver(this);
         Hype.addMessageObserver(this);
 
+        try {
+            Hype.setAnnouncement(ChatApplication.announcement.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            Hype.setAnnouncement(null);
+            e.printStackTrace();
+        }
+
         // Generate an app identifier in the HypeLabs dashboard (https://hypelabs.io/apps/),
         // by creating a new app. Copy the given identifier here.
         Hype.setAppIdentifier("{{app_identifier}}");
@@ -79,7 +93,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         // case. The `requestHypeToStart()` method is called when the user replies to the permission
         // request. If the permission is denied, BLE will not work.
         ContactActivity contactActivity = ContactActivity.getDefaultInstance();
-        contactActivity.requestPermissions();
+        contactActivity.requestPermissions(contactActivity);
         isConfigured = true;
     }
 
@@ -115,6 +129,20 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     public void onHypeFailedStarting(Error error) {
 
         Log.i(TAG, String.format("Hype failed starting [%s]", error.getDescription()));
+
+        final String failedMsg = error == null? "" : String.format("Suggestion: %s\nDescription: %s\nReason: %s",
+                error.getSuggestion(), error.getDescription(), error.getReason());
+
+        this.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle("Hype failed starting");
+                builder.setMessage(failedMsg);
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.show();
+            }
+        });
     }
 
     @Override

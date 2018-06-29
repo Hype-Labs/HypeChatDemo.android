@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.hypelabs.hype.Hype;
 import com.hypelabs.hype.Instance;
@@ -70,6 +71,13 @@ public class ChatActivity extends Activity implements Store.Delegate {
         final Store store = getStore();
 
         listView.setAdapter(new ChatViewAdapter(this, store));
+
+        TextView announcement = findViewById(R.id.chatViewInstanceAnnouncement);
+        try {
+            announcement.setText(new String(store.getInstance().getAnnouncement(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         // Start listening to message queue events so we can update the UI accordingly
         store.setDelegate(this);

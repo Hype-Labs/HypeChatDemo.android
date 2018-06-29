@@ -19,14 +19,18 @@
             android:layout_height="60dip"
             android:layout_weight="0.9">
 
-            <TextView android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/hype_announcement"
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
                 android:layout_height="wrap_content"
-                android:id="@+id/display_name"/>
+                android:text="Announcement: ---"/>
 
             <TextView
+                android:id="@+id/hype_id"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Description not available"/>
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:layout_height="wrap_content"/>
 
         </TableLayout>
 

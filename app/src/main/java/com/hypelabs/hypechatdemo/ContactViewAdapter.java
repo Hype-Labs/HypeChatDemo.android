@@ -32,6 +32,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public class ContactViewAdapter extends BaseAdapter {
@@ -96,10 +97,18 @@ public class ContactViewAdapter extends BaseAdapter {
 
         Store store = (Store)getItem(position);
 
-        TextView displayName = (TextView)vi.findViewById(R.id.display_name);
+        TextView displayName = (TextView)vi.findViewById(R.id.hype_id);
+        TextView announcement = (TextView)vi.findViewById(R.id.hype_announcement);
+
         ImageView contentIndicator = (ImageView)vi.findViewById(R.id.new_content);
 
         displayName.setText(store.getInstance().getStringIdentifier());
+
+        try {
+            announcement.setText(new String(store.getInstance().getAnnouncement(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            announcement.setText("");
+        }
 
         contentIndicator.setVisibility(store.hasNewMessages() ? View.VISIBLE : View.INVISIBLE);
 
