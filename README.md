@@ -31,7 +31,11 @@ This demo does not work out of the box. The following are the necessary steps to
  11. Open the same file, `ChatApplication.java`, and find the method declaration for `public String onHypeRequestAccessToken`
  12. Where that method returns `{{access_token}}`, have it return the token you just copied instead
 
-You should be ready to go! If you run into trouble, feel free to reach out to our [community](https://hypelabs.io/community/?r=10) or browse our other [support](https://hypelabs.io/support/?r=10) options. Also keep in mind our project templates on the [apps](https://hypelabs.io/apps/?r=10) page for demos working out of the box.
+You should be ready to go! 
+
+Please note that the app can **ONLY be run on physical hardware devices**. Running on *emulators will not work* due to APIs related to certain features being unsupported.
+
+If you run into trouble, feel free to reach out to our [community](https://hypelabs.io/community/?r=10) or browse our other [support](https://hypelabs.io/support/?r=10) options. Also keep in mind our project templates on the [apps](https://hypelabs.io/apps/?r=10) page for demos working out of the box.
 
 ## Overview
 
