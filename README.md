@@ -1,6 +1,6 @@
 
-![alt tag](https://hypelabs.io/static/img/NQMAnSZ.jpg)
-![alt tag](https://hypelabs.io/static/img/logo200x.png)
+![alt tag](https://i.imgur.com/Dl2nxBg.png)
+![alt tag](https://i.imgur.com/eYx2jOD.png)
 
 [Hype](https://hypelabs.io/?r=10) is an SDK for cross-platform peer-to-peer communication with mesh networking. Hype works even without Internet access, connecting devices via other communication channels such as Bluetooth, Wi-Fi direct, and Infrastructural Wi-Fi.
 

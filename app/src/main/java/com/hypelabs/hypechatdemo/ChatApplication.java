@@ -37,6 +37,7 @@ import com.hypelabs.hype.MessageInfo;
 import com.hypelabs.hype.MessageObserver;
 import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
+import com.hypelabs.hype.TransportType;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -64,10 +65,14 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     @Override
     public void onApplicationStop(Application app) { }
 
+    //################################################
+    //###### CONFIGURE HYPE SDK ENVIRONMENT ##########
+    //################################################
+
     private void configureHype() {
-        if(isConfigured){
+
+        if (isConfigured)
             return;
-        }
 
         Hype.setContext(getApplicationContext());
 
@@ -76,6 +81,12 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         Hype.addNetworkObserver(this);
         Hype.addMessageObserver(this);
 
+
+        // Generate an app identifier in the HypeLabs dashboard (https://hypelabs.io/apps/),
+        // by creating a new app. Copy the given identifier here.
+        Hype.setAppIdentifier("{{app_identifier}}");
+
+        // Set Hype announcement
         try {
             Hype.setAnnouncement(ChatApplication.announcement.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -83,19 +94,26 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
             e.printStackTrace();
         }
 
-        // Generate an app identifier in the HypeLabs dashboard (https://hypelabs.io/apps/),
-        // by creating a new app. Copy the given identifier here.
-        Hype.setAppIdentifier("{{app_identifier}}");
 
-        // Since Android 6.0 (API 23) Bluetooth Low Energy requires the ACCESS_COARSE_LOCATION
-        // permission in order to work. The `requestPermissions()` method checks whether it's
-        // necessary to ask for this permission and goes through with the request if that's the
-        // case. The `requestHypeToStart()` method is called when the user replies to the permission
-        // request. If the permission is denied, BLE will not work.
+
+        // Update contacts interface
         ContactActivity contactActivity = ContactActivity.getDefaultInstance();
         contactActivity.requestPermissions(contactActivity);
+
         isConfigured = true;
     }
+
+    @Override
+    public String onHypeRequestAccessToken(int i) {
+
+        // Access the app settings (https://hypelabs.io/apps/) to find an access token to use here.
+        return "{{access_token}}";
+    }
+
+
+    //################################################
+    //############# STATE OBSERVER ###################
+    //################################################
 
     public void requestHypeToStart() {
 
@@ -104,8 +122,6 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
 
     protected void requestHypeToStop() {
 
-        // The current release has a known issue with Bluetooth Low Energy that causes all
-        // connections to drop when the SDK is stopped. This is an Android issue.
         Hype.stop();
     }
 
@@ -130,9 +146,11 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
 
         Log.i(TAG, String.format("Hype failed starting [%s]", error.getDescription()));
 
+        // Obtain information of error
         final String failedMsg = error == null? "" : String.format("Suggestion: %s\nDescription: %s\nReason: %s",
                 error.getSuggestion(), error.getDescription(), error.getReason());
 
+        // Prints an Error message to the application screen
         this.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -159,9 +177,13 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         Log.i(TAG, String.format("Hype changed state to [%d] (Idle=0, Starting=1, Running=2, Stopping=3)", Hype.getState().getValue()));
     }
 
+    //################################################
+    //########### NETWORK OBSERVER ###################
+    //################################################
+
     boolean shouldResolveInstance(Instance instance)
     {
-        // This method can be used to decide whether an instance is interesting
+        // This method can be used to decide whether an instance is interesting.
         return true;
     }
 
@@ -170,6 +192,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
 
         Log.i(TAG, String.format("Hype found instance: %s", instance.getStringIdentifier()));
 
+        // Resolve the instance, if it is interesting
         if(shouldResolveInstance(instance)){
             Hype.resolve(instance);
         }
@@ -179,6 +202,8 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
     public void onHypeInstanceLost(Instance instance, Error error) {
 
         Log.i(TAG, String.format("Hype lost instance: %s [%s]", instance.getStringIdentifier(), error.getDescription()));
+
+        // Remove lost instance from resolved instances
         removeFromResolvedInstancesMap(instance);
     }
 
@@ -187,7 +212,7 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
 
         Log.i(TAG, String.format("Hype resolved instance: %s", instance.getStringIdentifier()));
 
-        // This device is now capable of communicating
+        // Add found instance to resolved instances
         addToResolvedInstancesMap(instance);
     }
 
@@ -196,6 +221,38 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
 
         Log.i(TAG, String.format("Hype failed resolving instance: %s [%s]", instance.getStringIdentifier(), error.getDescription()));
     }
+
+    public void addToResolvedInstancesMap(Instance instance) {
+
+        // Instances should be strongly kept by some data structure. Their identifiers
+        // are useful for keeping track of which instances are ready to communicate.
+        getStores().put(instance.getStringIdentifier(), new Store(instance));
+
+        // Notify the contact activity to refresh the UI
+        ContactActivity contactActivity = ContactActivity.getDefaultInstance();
+
+        if (contactActivity != null) {
+            contactActivity.notifyContactsChanged();
+        }
+    }
+
+    public void removeFromResolvedInstancesMap(Instance instance) {
+
+        // Cleaning up is always a good idea. It's not possible to communicate with instances
+        // that were previously lost.
+        getStores().remove(instance.getStringIdentifier());
+
+        // Notify the contact activity to refresh the UI
+        ContactActivity contactActivity = ContactActivity.getDefaultInstance();
+
+        if (contactActivity != null) {
+            contactActivity.notifyContactsChanged();
+        }
+    }
+
+    //################################################
+    //########### MESSAGE OBSERVER ###################
+    //################################################
 
     @Override
     public void onHypeMessageReceived(Message message, Instance instance) {
@@ -233,11 +290,10 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         Log.i(TAG, String.format("Hype delivered a message: %f", progress));
     }
 
-    @Override
-    public String onHypeRequestAccessToken(int i) {
-        // Access the app settings (https://hypelabs.io/apps/) to find an access token to use here.
-        return "{{access_token}}";
-    }
+    //################################################
+    //########### END OF SDK INTEGRATION #############
+    //################################################
+
 
     @Override
     public void onCreate() {
@@ -257,29 +313,5 @@ public class ChatApplication extends BaseApplication implements StateObserver, N
         return stores;
     }
 
-    public void addToResolvedInstancesMap(Instance instance) {
-        // Instances should be strongly kept by some data structure. Their identifiers
-        // are useful for keeping track of which instances are ready to communicate.
-        getStores().put(instance.getStringIdentifier(), new Store(instance));
 
-        // Notify the contact activity to refresh the UI
-        ContactActivity contactActivity = ContactActivity.getDefaultInstance();
-
-        if (contactActivity != null) {
-            contactActivity.notifyContactsChanged();
-        }
-    }
-
-    public void removeFromResolvedInstancesMap(Instance instance) {
-        // Cleaning up is always a good idea. It's not possible to communicate with instances
-        // that were previously lost.
-        getStores().remove(instance.getStringIdentifier());
-
-        // Notify the contact activity to refresh the UI
-        ContactActivity contactActivity = ContactActivity.getDefaultInstance();
-
-        if (contactActivity != null) {
-            contactActivity.notifyContactsChanged();
-        }
-    }
 }
